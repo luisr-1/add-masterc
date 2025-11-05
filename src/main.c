@@ -1,6 +1,6 @@
-#include "calc/core/operation.h"
-#include "calc/handlers/handle_operation.h"
-#include "view/menu.h"
+#include "calc/core/operation.c"
+#include "calc/handlers/handle_operation.c"
+#include "view/menu.c"
 
 #include <stdio.h>
 
@@ -16,16 +16,26 @@ int main(void /*int argc, char **argv*/) {
   int a, b;
 
   do {
+
     printf("Insira um operador: \n");
     scanf("%c", &operator);
-    clear_input_buffer();
+ 
+    if (operator != '!'){
+      printf("Insira dois numeros para realizar a operacao separado por ' ' (espaco): \n");
+      scanf("%d %d", &a, &b);
+      clear_input_buffer();
 
-    printf("Insira dois números para realizar a operação: \n");
-    scanf("%d%d", &a, &b);
-    clear_input_buffer();
-
-    printf("O resultado de %d %c %d = %d\n", a, operator, b,
+      printf("O resultado de %d %c %d = %d\n", a, operator, b,
            get_result(operator, a, b));
+    }
+    else{
+      printf("Insira um numero para realizar a operacao: \n");
+      scanf("%d", &a);
+      clear_input_buffer();
+
+      printf("O resultado de %d %c = %d\n", a, operator,
+           get_result(operator, a, 0));
+    }
   } while (is_valid_operation(operator));
 
   return 0;
