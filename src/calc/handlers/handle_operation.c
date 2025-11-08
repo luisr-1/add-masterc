@@ -6,7 +6,7 @@
 bool is_valid_operation(const char operation) {
   return operation == add_operator || operation == sub_operator ||
          operation == mult_operator || operation == div_operator ||
-         operation == mod_operator;
+         operation == mod_operator || operation == fat_operator;
 }
 
 int get_result(const char op, int a, int b) {

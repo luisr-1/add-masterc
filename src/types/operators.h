@@ -6,7 +6,8 @@ enum operators {
     sub_operator = '-',
     mult_operator = '*',
     div_operator = '/',
-    mod_operator = '%'
+    mod_operator = '%',
+    fat_operator = '!'
 };
 
 #endif

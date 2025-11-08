@@ -13,6 +13,8 @@ binary_op_t set_operation(char op) {
     return multiplication;
   case div_operator:
     return division;
+  case fat_operator:
+    return fatorial;
   default:
     return NULL;
   }
@@ -31,4 +33,12 @@ int division(int a, int b) {
 
   fprintf(stderr, "%s", "Não é possível realizar divisão por 0\n");
   return -1;
+}
+
+int fatorial(int a, int b) {
+
+  for(int i = 1; i <= a; i++) {
+    b = b*i;
+  }
+  return b;
 }
