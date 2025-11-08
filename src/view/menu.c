@@ -8,6 +8,7 @@ void show_menu() {
         "* :=> Multiplicação\n"
         "/ :=> Divisão Inteira\n"
         "%% :=> Módulo\n"
+	"! :=> Fatorial\n"
         // TODO: Adicionar operação especial a ser definida
     );
 }

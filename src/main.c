@@ -18,14 +18,25 @@ int main(void /*int argc, char **argv*/) {
   do {
     printf("Insira um operador: \n");
     scanf("%c", &operator);
-    clear_input_buffer();
+    clear_input_buffer();    
+    
+    if(operator != '!'){
+        printf("Insira dois números para realizar a operação: \n");
+        scanf("%d%d", &a, &b);
+        clear_input_buffer();
 
-    printf("Insira dois números para realizar a operação: \n");
-    scanf("%d%d", &a, &b);
-    clear_input_buffer();
-
-    printf("O resultado de %d %c %d = %d\n", a, operator, b,
+        printf("O resultado de %d %c %d = %d\n", a, operator, b,
            get_result(operator, a, b));
+    }
+    else{
+
+         printf("Insira um numero para realizar a operacao: \n");
+         scanf("%d", &a);
+         clear_input_buffer();
+
+         printf("O resultado de %d%c = %d\n", a, operator, 
+                               get_result(operator, a, 1));
+    }
   } while (is_valid_operation(operator));
 
   return 0;
