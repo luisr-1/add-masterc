@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -g
+CFLAGS = -Wall -Wextra -Werror -std=c11 -g
 
 TARGET_EXEC := add-masterc
 
@@ -26,5 +26,11 @@ $(BUILD_DIR)/%.c.o: %.c
 .PHONY: clean
 clean:
 	rm -r $(BUILD_DIR)
+	
+.PHONY: memcheck
+memcheck: $(BUILD_DIR)/$(TARGET_EXEC)
+		valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
+			--errors-for-leak-kinds=all --log-file=valgrind.log \
+			$(BUILD_DIR)/$(TARGET_EXEC)
 
 -include $(DEPS)
