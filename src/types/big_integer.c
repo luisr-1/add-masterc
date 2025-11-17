@@ -1,47 +1,42 @@
 #include "big_integer.h"
-#include "digit.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 bigInt initNumber(const char *num) {
-  if (num == NULL)
+  if (num == NULL) {
+    perror("A string passada é nula, o número não será inicializado\n");
     return NULL;
+  }
 
   char *num_sanitized = sanitizeNumber(num);
-  if (num_sanitized == NULL)
+  if (num_sanitized == NULL) {
+    perror("Problema na limpeza da string de representação númerica\n");
     return NULL;
+  }
 
   bigInt n = (bigInt)malloc(sizeof(struct BigInteger));
-  if (n == NULL)
+  if (n == NULL) {
+    perror("Ocorreu um problema para alocar espaço para o BigInt\n");
     return NULL;
+  }
 
-  n->has_signal = (num_sanitized[0] == '-');
-  n->first_digit = NULL;
-  n->last_digit = NULL;
-
-  size_t i = 0;
-  if (n->has_signal)
-    i++;
-
-  for (; num_sanitized[i] != '\0'; i++) {
-    digit new_digit = initDigit(num_sanitized[i]);
-    if (new_digit == NULL) {
-      free(num_sanitized);
-      // n->destroy(&self);
-      return NULL;
-    }
-
-    if (n->first_digit == NULL) {
-      n->first_digit = new_digit;
-      n->last_digit = new_digit;
-    } else {
-      new_digit->prv = n->last_digit;
-      n->last_digit->nxt = new_digit;
-      n->last_digit = new_digit;
-    }
+  switch (num_sanitized[0]) {
+  case '-':
+    n->signal = -1;
+    break;
+  case '+':
+    n->signal = 1;
+    break;
+  default:
+    if (isdigit(num_sanitized[0]))
+      n->signal = 0;
+    break;
   }
 
   free(num_sanitized);
+  
   return n;
 }
 
