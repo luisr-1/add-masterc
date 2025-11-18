@@ -17,5 +17,5 @@ struct BigInteger {
 bigInt initNumber(const char *num);
 char *sanitizeNumber(const char *number);
 char *toDecimalRepresentation(bigInt n);
-
+void destroyBigInt(bigInt b);
 #endif

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 array initArray(unsigned int size) {
   array vector = (array)malloc(sizeof(struct Array));
@@ -22,6 +23,7 @@ array initArray(unsigned int size) {
   vector->remove = removeElement;
   vector->is_empty = isEmpty;
   vector->destroy = destroyArray;
+  vector->add_front = addFront;
 
   return vector;
 }
@@ -47,7 +49,7 @@ void destroyArray(array self) {
 }
 
 void removeElement(array self, unsigned int index) {
-  if (self == NULL || self->is_empty(self)) {
+  if (isEmpty(self)) {
     perror("Não existem elementos para remover no array\n");
     return;
   }
@@ -71,4 +73,23 @@ bool isEmpty(array self) {
     return true;
   else
     return false;
+}
+
+void addFront(array self, unsigned int element) {
+  if (self->size == self->capacity) {
+    size_t new_capacity = self->capacity * 2 + 1;
+    unsigned int *new_vector =
+        realloc(self->vector, new_capacity * sizeof(unsigned int));
+    if (!new_vector) {
+      perror("Erro ao alocar o vetor\n");
+      return;
+    }
+    self->vector = new_vector;
+    self->capacity = new_capacity;
+  }
+
+  memmove(self->vector + 1, self->vector, self->size * sizeof(unsigned int));
+
+  self->vector[0] = element;
+  self->size++;
 }

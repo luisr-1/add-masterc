@@ -30,7 +30,7 @@ clean:
 .PHONY: memcheck
 memcheck: $(BUILD_DIR)/$(TARGET_EXEC)
 		valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
-			--errors-for-leak-kinds=all --log-file=valgrind.log \
+			--errors-for-leak-kinds=all -s --log-file=valgrind.log \
 			$(BUILD_DIR)/$(TARGET_EXEC)
 
 -include $(DEPS)
