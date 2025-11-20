@@ -26,6 +26,10 @@ bigInt initNumber(const char *num) {
     return NULL;
   }
 
+  n->destroy = destroyBigInt;
+  n->init = initNumber;
+  n->to_decimal_representation = toDecimalRepresentation;
+  
   size_t i = 0;
 
   if (num[0] == '-') {
@@ -37,9 +41,10 @@ bigInt initNumber(const char *num) {
       i = 1;
   }
 
-  n->size = strlen(num_sanitized) - i;
+  n->size = (size_t *)malloc(sizeof(size_t));
+  *n->size = strlen(num_sanitized) - i;
 
-  n->vector = initArray(n->size);
+  n->vector = initArray(*n->size);
   if (!n->vector) {
     perror("Erro ao alocar o vetor dinâmico para o dígitos\n");
     destroyBigInt(n);
@@ -118,7 +123,7 @@ char *toDecimalRepresentation(bigInt b) {
 
   int has_signal = (b->signal == -1);
 
-  size_t total_len = b->size + has_signal + 1;
+  size_t total_len = *b->size + has_signal + 1;
   char *out = (char *)malloc(sizeof(char) * total_len);
   if (!out) {
     perror("Erro na alocação da string para representação númerica\n");
@@ -130,7 +135,7 @@ char *toDecimalRepresentation(bigInt b) {
   if (has_signal)
     out[position++] = '-';
 
-  for (size_t i = b->vector->size; i > 0; i--)
+  for (size_t i = *b->size; i > 0; i--)
     out[position++] = intToChar(b->vector->vector[i - 1]);
 
   out[position] = '\0';
