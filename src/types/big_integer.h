@@ -1,21 +1,29 @@
 #ifndef BIG_INTEGER
 #define BIG_INTEGER
 
+#include "array.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "digit.h"
 
 typedef struct BigInteger *bigInt;
 
+typedef bigInt (*Init)(const char *num);
+typedef void (*DestroyBigInt)(bigInt self);
+typedef char *(*DecimalRepresentation)(bigInt self);
+
 struct BigInteger {
-  digit first_digit;
-  digit last_digit;
-  bool has_signal;
+  array vector;
+  size_t *size;
+  short signal;
+
+  Init init;
+  DestroyBigInt destroy;
+  DecimalRepresentation to_decimal_representation;
 };
 
 bigInt initNumber(const char *num);
-bigInt initNumberWithValue(digit digits);
 char *sanitizeNumber(const char *number);
-
+char *toDecimalRepresentation(bigInt n);
+void destroyBigInt(bigInt b);
 #endif
