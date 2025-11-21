@@ -8,6 +8,7 @@
 
 typedef struct BigInteger *bigInt;
 
+typedef bigInt (*New)(const unsigned int size);
 typedef bigInt (*Init)(const char *num);
 typedef void (*DestroyBigInt)(bigInt self);
 typedef char *(*DecimalRepresentation)(bigInt self);
@@ -16,12 +17,14 @@ struct BigInteger {
   array vector;
   size_t *size;
   short signal;
-
+  
+  New newBigInt;
   Init init;
   DestroyBigInt destroy;
   DecimalRepresentation to_decimal_representation;
 };
 
+bigInt initEmpty(const unsigned int size);
 bigInt initNumber(const char *num);
 char *sanitizeNumber(const char *number);
 char *toDecimalRepresentation(bigInt n);
