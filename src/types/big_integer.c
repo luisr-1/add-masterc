@@ -29,7 +29,7 @@ bigInt initNumber(const char *num) {
   n->destroy = destroyBigInt;
   n->init = initNumber;
   n->to_decimal_representation = toDecimalRepresentation;
-  
+
   size_t i = 0;
 
   if (num[0] == '-') {
@@ -140,7 +140,7 @@ char *toDecimalRepresentation(bigInt b) {
 
   out[position] = '\0';
 
-  return out;
+  return sanitizeNumber(out);
 }
 
 void destroyBigInt(bigInt b) {
@@ -153,4 +153,37 @@ void destroyBigInt(bigInt b) {
     b->vector->destroy(b->vector);
 
   free(b);
+}
+
+bigInt initEmpty(const unsigned int size) {
+  if (size == 0)
+    return NULL;
+
+  bigInt b = (bigInt)malloc(sizeof(struct BigInteger));
+  if (!b) {
+    perror("Erro ao alocar bigInt vazio\n");
+    return NULL;
+  }
+
+  b->vector = initArray(size);
+  if (!b->vector) {
+    perror("Erro ao inicializar o array de digitos\n");
+    return NULL;
+  }
+
+  b->size = malloc(sizeof(size_t));
+  if (!b->size) {
+    perror("Problema ao alocar o tamanho do BigInteger\n");
+    return NULL;
+  }
+
+  (*b->size) = size;
+  b->signal = 0;
+
+  b->destroy = destroyBigInt;
+  b->to_decimal_representation = toDecimalRepresentation;
+  b->init = initNumber;
+  b->newBigInt = initEmpty;
+
+  return b;
 }
