@@ -22,6 +22,7 @@ struct BigInteger {
   Init init;
   DestroyBigInt destroy;
   DecimalRepresentation to_decimal_representation;
+
 };
 
 bigInt initEmpty(const unsigned int size);

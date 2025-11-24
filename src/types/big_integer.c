@@ -187,3 +187,4 @@ bigInt initEmpty(const unsigned int size) {
 
   return b;
 }
+
