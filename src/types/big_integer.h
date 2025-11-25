@@ -17,12 +17,11 @@ struct BigInteger {
   array vector;
   size_t *size;
   short signal;
-  
+
   New newBigInt;
   Init init;
   DestroyBigInt destroy;
   DecimalRepresentation to_decimal_representation;
-
 };
 
 bigInt initEmpty(const unsigned int size);
@@ -30,4 +29,10 @@ bigInt initNumber(const char *num);
 char *sanitizeNumber(const char *number);
 char *toDecimalRepresentation(bigInt n);
 void destroyBigInt(bigInt b);
+bigInt intToBigInt(unsigned int n);
+bigInt shiftLeftBigInt(bigInt num, int positions);
+bigInt copyBigInt(bigInt b);
+int compareAbs(bigInt a, bigInt b);
+void appendDigitInPlace(bigInt self, int digit); 
+void removeLeadingZerosBigInt(bigInt self);
 #endif

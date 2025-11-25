@@ -10,7 +10,7 @@ typedef struct Array *array;
 // Functions pointers to
 typedef bool (*Empty)(array self);
 typedef void (*Add)(array self, unsigned int element);
-typedef void (*Remove)(array self, unsigned int index);
+typedef void (*Remove)(array self, size_t index);
 typedef void (*Destroy)(array self);
 typedef void (*AddFront)(array self, unsigned int element);
 
@@ -42,7 +42,7 @@ struct Array {
  * initialized with n positions
  * @param size -> the initial size of array
  */
-array initArray(unsigned int size);
+array initArray(size_t size);
 
 /**
  * @param self -> Pointer to array itself
@@ -54,7 +54,7 @@ void addElement(array self, unsigned int n);
  * @param self -> Pointer to array itself
  * @param index -> The position of the item to be removed of array
  */
-void removeElement(array self, unsigned int index);
+void removeElement(array self, size_t index);
 
 /**
  * @param self -> Pointer to array itself

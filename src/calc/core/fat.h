@@ -2,6 +2,6 @@
 #define FAT_H
  
 #include "../../types/big_integer.h"
- 
-bigInt fatorialBigInt(bigInt a);
+
+bigInt factorialBigInt(unsigned int n);
 #endif
