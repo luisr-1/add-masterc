@@ -1,10 +1,25 @@
 #include "add.h"
 #include "../../types/big_integer.h"
+#include "subtract.h"
 #include <stdio.h>
 
 bigInt addBigInt(bigInt a, bigInt b) {
   if (!a || !b)
     return NULL;
+
+  if (a->signal != b->signal) {
+    bigInt b_inverted = copyBigInt(b);
+    if (!b_inverted)
+      return NULL;
+
+    b_inverted->signal = b->signal * (-1);
+    bigInt result = subtractBigInt(a, b_inverted);
+    if (!result)
+      return NULL;
+
+    result->destroy(b_inverted);
+    return result;
+  }
 
   size_t max = *a->size > *b->size ? *a->size : *b->size;
 
