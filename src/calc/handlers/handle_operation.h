@@ -1,7 +1,8 @@
 #ifndef HANDLE_OPERATION_H
 #define HANDLE_OPERATION_H
 #include <stdbool.h>
+#include "../../types/big_integer.h"
 
-bool is_valid_operation(const char op);
-int get_result(const char op, int a, int b);
+bool isValidOperation(const char op);
+bigInt getResult(const char op, bigInt a, bigInt b);
 #endif

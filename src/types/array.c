@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-array initArray(unsigned int size) {
-  array vector = (array)malloc(sizeof(struct Array));
-  if (vector == NULL) {
+array initArray(size_t size) {
+  array vector = (array)calloc(size, sizeof(struct Array));
+  if (!vector) {
     perror("Problema para a estrutura Array\n");
     return NULL;
   }
 
-  vector->vector = (unsigned int *)malloc(sizeof(unsigned int) * size);
+  vector->vector = (unsigned int *)calloc(size, sizeof(unsigned int));
   if (vector->vector == NULL) {
     perror("Problema para alocar o vetor\n");
     return NULL;
@@ -29,7 +29,7 @@ array initArray(unsigned int size) {
 }
 
 void addElement(array self, unsigned int element) {
-  if (self == NULL) {
+  if (!self) {
     perror("O array é nulo\n");
     return;
   }
@@ -48,7 +48,7 @@ void destroyArray(array self) {
   free(self);
 }
 
-void removeElement(array self, unsigned int index) {
+void removeElement(array self, size_t index) {
   if (isEmpty(self)) {
     perror("Não existem elementos para remover no array\n");
     return;
@@ -67,7 +67,7 @@ void removeElement(array self, unsigned int index) {
 }
 
 bool isEmpty(array self) {
-  if (self == NULL)
+  if (!self)
     return true;
   else if (self->size == 0)
     return true;
