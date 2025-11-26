@@ -38,12 +38,12 @@ int main(int argc, char *argv[]) {
   while (1) {
     if (is_interactive)
       show_menu();
-    
+
     if (fgets(line, sizeof(line), stdin) == NULL)
-      break;    
-    
+      break;
+
     cleanNewLine(line);
-    
+
     if (strlen(line) == 0)
       continue;
 
@@ -57,10 +57,16 @@ int main(int argc, char *argv[]) {
     bigInt result = NULL;
 
     if (op == fat_operator) {
+      printf("Digite o valor do fatorial que desejar calcular\n"
+             "|------->");
       if (fgets(line, sizeof(line), stdin)) {
         cleanNewLine(line);
 
-        unsigned int n = (unsigned int)strtoul(line, NULL, 10);
+        int n = strtoul(line, NULL, 10);
+        if (n < 0) {
+          printf("Fatorial para números reais negativos não é definido\n");
+          continue;
+        }
 
         result = factorialBigInt(n);
         if (result) {
@@ -73,10 +79,14 @@ int main(int argc, char *argv[]) {
       char bufNum1[MAX_INPUT_SIZE];
       char bufNum2[MAX_INPUT_SIZE];
 
+      printf("Insira o valor do primeiro número\n"
+             "|------->");
       if (!fgets(bufNum1, sizeof(bufNum1), stdin))
         break;
       cleanNewLine(bufNum1);
 
+      printf("Insira o valor do segundo número\n"
+             "|------->");
       if (!fgets(bufNum2, sizeof(bufNum2), stdin))
         break;
       cleanNewLine(bufNum2);

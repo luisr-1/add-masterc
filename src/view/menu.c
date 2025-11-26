@@ -8,5 +8,7 @@ void show_menu() {
          "* :=> Multiplicação\n"
          "/ :=> Divisão Inteira\n"
          "%% :=> Módulo\n"
-         "! :=> Fatorial\n");
+         "! :=> Fatorial\n"
+         "================================================\n"
+  );
 }
