@@ -57,8 +57,10 @@ int main(int argc, char *argv[]) {
     bigInt result = NULL;
 
     if (op == fat_operator) {
-      printf("Digite o valor do fatorial que desejar calcular\n"
+      if(is_interactive)
+          printf("Digite o valor do fatorial que desejar calcular\n"
              "|------->");
+      
       if (fgets(line, sizeof(line), stdin)) {
         cleanNewLine(line);
 
@@ -72,21 +74,26 @@ int main(int argc, char *argv[]) {
         if (result) {
           char *decimalRep = result->to_decimal_representation(result);
           printf("!%u = %s\n", n, decimalRep);
+          free(decimalRep);
           result->destroy(result);
+          result = NULL;
         }
       }
     } else if (isValidOperation(op) && op != fat_operator) {
       char bufNum1[MAX_INPUT_SIZE];
       char bufNum2[MAX_INPUT_SIZE];
-
-      printf("Insira o valor do primeiro número\n"
+      if(is_interactive)
+        printf("Insira o valor do primeiro número\n"
              "|------->");
+      
       if (!fgets(bufNum1, sizeof(bufNum1), stdin))
         break;
       cleanNewLine(bufNum1);
 
-      printf("Insira o valor do segundo número\n"
+      if(is_interactive)
+        printf("Insira o valor do segundo número\n"
              "|------->");
+      
       if (!fgets(bufNum2, sizeof(bufNum2), stdin))
         break;
       cleanNewLine(bufNum2);
@@ -99,14 +106,16 @@ int main(int argc, char *argv[]) {
         if (result) {
           char *decimalRep = result->to_decimal_representation(result);
           printf("%s %c %s = %s\n", bufNum1, op, bufNum2, decimalRep);
+          free(decimalRep);
           result->destroy(result);
+          result = NULL;
         }
-      }
 
-      if (num1)
         num1->destroy(num1);
-      if (num2)
+        num1 = NULL;
         num2->destroy(num2);
+        num2 = NULL;
+      }
     } else {
       printf("Operacao desconhecida: %c\n", op);
     }

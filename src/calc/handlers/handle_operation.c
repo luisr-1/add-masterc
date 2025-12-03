@@ -4,6 +4,7 @@
 #include "../core/division.h"
 #include "../core/mult.h"
 #include "../core/subtract.h"
+#include "../core/mod.h"
 #include "stdlib.h"
 
 bool isValidOperation(const char operation) {
@@ -36,19 +37,11 @@ bigInt getResult(const char op, bigInt a, bigInt b) {
     return quotient;
   }
   case mod_operator: {
-    bigDivResult res = divisionBigInt(a, b);
-    if (!res)
-      return NULL;
-
-    bigInt remainder = res->remainder;
-
-    if (res->quotient) {
-      res->quotient->destroy(res->quotient);
+    if(a->signal == -1 || b->signal == -1) {
+        printf("Pela definição dada, a operação módulo só é permitida para números positivos\n");
+        return NULL;
     }
-
-    free(res);
-
-    return remainder;
+    return modBigInt(a, b);
   }
   default:
     return NULL;
