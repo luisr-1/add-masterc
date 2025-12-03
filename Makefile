@@ -33,4 +33,9 @@ memcheck: $(BUILD_DIR)/$(TARGET_EXEC)
 			--errors-for-leak-kinds=all -s --log-file=valgrind.log \
 			$(BUILD_DIR)/$(TARGET_EXEC)
 
+.PHONY: test
+test:
+	@echo "Executando testes..."
+	@tests/run-tests.sh
+
 -include $(DEPS)
