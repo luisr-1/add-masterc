@@ -12,12 +12,10 @@ bigInt addBigInt(bigInt a, bigInt b) {
     if (!b_inverted)
       return NULL;
 
-    b_inverted->signal = b->signal * (-1);
+    b_inverted->signal = -b->signal;
     bigInt result = subtractBigInt(a, b_inverted);
-    if (!result)
-      return NULL;
 
-    result->destroy(b_inverted);
+    b_inverted->destroy(b_inverted);
     return result;
   }
 
@@ -43,6 +41,10 @@ bigInt addBigInt(bigInt a, bigInt b) {
 
   if (carry)
     c->vector->add(c->vector, carry);
+
+  *c->size = c->vector->size;
+
+  c->signal = a->signal;
 
   return c;
 }

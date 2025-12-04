@@ -1,28 +1,50 @@
 #include "mod.h"
+#include "division.h"
 #include "mult.h"
 #include "subtract.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 bigInt modBigInt(bigInt a, bigInt b) {
-    if (!a || !b)
-        return NULL;
-
-    bigDivResult divres = divisionBigInt(a, b);
-    if (!divres)
-        return NULL;
-
-    bigInt temp = multBigInt(b, divres->quotient);
-    if (!temp) {
-        divres->quotient->destroy(divres->quotient);
-        divres->remainder->destroy(divres->remainder);
-        free(divres);
+    if (!a || !b) {
         return NULL;
     }
 
-    bigInt result = subtractBigInt(a, temp);
-    if(!result)
-        return NULL; 
-    
-    result->destroy(temp);
+    if (*b->size == 1 && b->vector->vector[0] == 0) {
+        printf("Erro: módulo por zero.\n");
+        return NULL;
+    }
+
+    if (compareAbs(a, b) < 0) {
+        return copyBigInt(a);
+    }
+
+    bigDivResult div = divisionBigInt(a, b);
+    if (!div) {
+        return NULL;
+    }
+
+    bigInt prod = multBigInt(div->quotient, b);
+    if (!prod) {
+        div->quotient->destroy(div->quotient);
+        div->remainder->destroy(div->remainder);
+        free(div);
+        return NULL;
+    }
+
+    bigInt result = subtractBigInt(a, prod);
+
+    prod->destroy(prod);
+    div->quotient->destroy(div->quotient);
+    div->remainder->destroy(div->remainder);
+    free(div);
+
+    if (!result)
+        return NULL;
+
+    result->signal = a->signal;
+
+    removeLeadingZerosBigInt(result);
+
     return result;
 }

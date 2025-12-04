@@ -1,6 +1,6 @@
+#include "subtract.h"
 #include "../../types/big_integer.h"
 #include "add.h"
-#include "subtract.h"
 
 bigInt differenceBigInt(bigInt a, bigInt b) {
   if (!a || !b || !a->vector || !b->vector)
@@ -28,24 +28,31 @@ bigInt differenceBigInt(bigInt a, bigInt b) {
   }
 
   result->signal = 1;
-  
+
   return result;
 }
 
 bigInt subtractBigInt(bigInt a, bigInt b) {
   if (!a || !b)
     return NULL;
-
   if (a->signal == b->signal) {
-    bigInt res = differenceBigInt(a, b);
-
-    if (a->signal == -1 && res) {
-      res->signal *= -1;
+    int cmp = compareAbs(a, b);
+    bigInt res = NULL;
+    if (cmp == 0)
+      return intToBigInt(0);
+    if (cmp > 0) {
+      res = differenceBigInt(a, b);
+      res->signal = a->signal;
+    } else {
+      res = differenceBigInt(b, a);
+      res->signal = -a->signal;
     }
     return res;
-  } else {
-    bigInt res = addBigInt(a, b);
-    res->signal = a->signal;
-    return res;
   }
+
+  bigInt res = addBigInt(a, b);
+
+  res->signal = a->signal;
+
+  return res;
 }
