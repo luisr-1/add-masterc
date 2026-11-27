@@ -1,7 +1,7 @@
-#include "subtract.h"
 #include "mult.h"
 #include "../../types/big_integer.h"
 #include "add.h"
+#include "subtract.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +12,7 @@ bigInt schoolMultiplyBigInt(bigInt a, bigInt b) {
     return NULL;
 
   size_t result_size = *a->size + *b->size;
-  bigInt result = initEmpty(result_size);
+  bigInt result = initEmpty((unsigned int)result_size);
   if (!result)
     return NULL;
 
@@ -20,25 +20,27 @@ bigInt schoolMultiplyBigInt(bigInt a, bigInt b) {
     result->vector->vector[i] = 0;
 
   for (size_t i = 0; i < *a->size; i++) {
-    int carry = 0;
+    unsigned int carry = 0;
     for (size_t j = 0; j < *b->size; j++) {
       size_t pos = i + j;
-      int product = a->vector->vector[i] * b->vector->vector[j] +
-                    result->vector->vector[pos] + carry;
+      unsigned int product = a->vector->vector[i] * b->vector->vector[j] +
+                             result->vector->vector[pos] + carry;
       result->vector->vector[pos] = product % 10;
       carry = product / 10;
     }
 
     size_t carry_pos = i + *b->size;
     while (carry > 0) {
-      int total = result->vector->vector[carry_pos] + carry;
+      unsigned int total = result->vector->vector[carry_pos] + carry;
       result->vector->vector[carry_pos] = total % 10;
       carry = total / 10;
       carry_pos++;
     }
   }
 
+  *result->size = result_size;
   result->signal = (a->signal == b->signal) ? 1 : -1;
+  removeLeadingZerosBigInt(result);
   return result;
 }
 
@@ -47,7 +49,7 @@ bigInt getHighPart(bigInt num, size_t split) {
     return initNumber("0");
 
   size_t high_size = *num->size - split;
-  bigInt result = initEmpty(high_size);
+  bigInt result = initEmpty((unsigned int)high_size);
   if (!result)
     return NULL;
 
@@ -55,16 +57,18 @@ bigInt getHighPart(bigInt num, size_t split) {
     result->vector->vector[i] = num->vector->vector[i + split];
   }
 
+  *result->size = high_size;
   result->signal = 1;
+  removeLeadingZerosBigInt(result);
   return result;
 }
 
 bigInt getLowPart(bigInt num, size_t split) {
-  if (!num || !num->vector)
+  if (!num || !num->vector || split == 0)
     return initNumber("0");
 
   size_t low_size = (*num->size < split) ? *num->size : split;
-  bigInt result = initEmpty(low_size);
+  bigInt result = initEmpty((unsigned int)low_size);
   if (!result)
     return NULL;
 
@@ -72,7 +76,9 @@ bigInt getLowPart(bigInt num, size_t split) {
     result->vector->vector[i] = num->vector->vector[i];
   }
 
+  *result->size = low_size;
   result->signal = 1;
+  removeLeadingZerosBigInt(result);
 
   return result;
 }
@@ -110,7 +116,7 @@ bigInt karatsubaBigInt(bigInt a, bigInt b) {
 
   bigInt a_sum = addBigInt(a_low, a_high);
   bigInt b_sum = addBigInt(b_low, b_high);
-  bigInt z2 = karatsubaBigInt(a_sum, b_sum);
+  bigInt z2 = (a_sum && b_sum) ? karatsubaBigInt(a_sum, b_sum) : NULL;
 
   if (!z0 || !z1 || !z2) {
     if (z0)
@@ -119,26 +125,30 @@ bigInt karatsubaBigInt(bigInt a, bigInt b) {
       z1->destroy(z1);
     if (z2)
       z2->destroy(z2);
+    if (a_sum)
+      a_sum->destroy(a_sum);
+    if (b_sum)
+      b_sum->destroy(b_sum);
     a_high->destroy(a_high);
     a_low->destroy(a_low);
     b_high->destroy(b_high);
     b_low->destroy(b_low);
-    a_sum->destroy(a_sum);
-    b_sum->destroy(b_sum);
     return schoolMultiplyBigInt(a, b);
   }
 
   bigInt temp = subtractBigInt(z2, z1);
-  bigInt middle_term = subtractBigInt(temp, z0);
+  bigInt middle_term = temp ? subtractBigInt(temp, z0) : NULL;
 
-  bigInt part1 = shiftLeftBigInt(z1, 2 * m);      // z1 * 10^(2m)
-  bigInt part2 = shiftLeftBigInt(middle_term, m); // middle * 10^m
+  bigInt part1 = shiftLeftBigInt(z1, (int)(2 * m));
+  bigInt part2 = middle_term ? shiftLeftBigInt(middle_term, (int)m) : NULL;
 
-  bigInt sum1 = addBigInt(part1, part2);
-  bigInt result = addBigInt(sum1, z0);
+  bigInt sum1 = (part1 && part2) ? addBigInt(part1, part2) : NULL;
+  bigInt result = sum1 ? addBigInt(sum1, z0) : NULL;
 
-  if (result)
+  if (result) {
     result->signal = (a->signal == b->signal) ? 1 : -1;
+    removeLeadingZerosBigInt(result);
+  }
 
   a_high->destroy(a_high);
   a_low->destroy(a_low);
@@ -149,11 +159,16 @@ bigInt karatsubaBigInt(bigInt a, bigInt b) {
   z0->destroy(z0);
   z1->destroy(z1);
   z2->destroy(z2);
-  temp->destroy(temp);
-  middle_term->destroy(middle_term);
-  part1->destroy(part1);
-  part2->destroy(part2);
-  sum1->destroy(sum1);
+  if (temp)
+    temp->destroy(temp);
+  if (middle_term)
+    middle_term->destroy(middle_term);
+  if (part1)
+    part1->destroy(part1);
+  if (part2)
+    part2->destroy(part2);
+  if (sum1)
+    sum1->destroy(sum1);
 
   return result;
 }

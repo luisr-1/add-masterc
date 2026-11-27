@@ -21,17 +21,17 @@ bigInt addBigInt(bigInt a, bigInt b) {
 
   size_t max = *a->size > *b->size ? *a->size : *b->size;
 
-  bigInt c = initEmpty(max + 1);
+  bigInt c = initEmpty((unsigned int)(max + 1));
   if (!c)
     return NULL;
 
-  unsigned short carry = 0;
+  unsigned int carry = 0;
 
   for (size_t i = 0; i < max; i++) {
-    unsigned short da = (i < *a->size) ? a->vector->vector[i] : 0;
-    unsigned short db = (i < *b->size) ? b->vector->vector[i] : 0;
+    unsigned int da = (i < *a->size) ? a->vector->vector[i] : 0;
+    unsigned int db = (i < *b->size) ? b->vector->vector[i] : 0;
 
-    unsigned short sum = da + db + carry;
+    unsigned int sum = da + db + carry;
 
     carry = sum / 10;
     sum = sum % 10;
@@ -42,9 +42,8 @@ bigInt addBigInt(bigInt a, bigInt b) {
   if (carry)
     c->vector->add(c->vector, carry);
 
-  *c->size = c->vector->size;
-
   c->signal = a->signal;
+  removeLeadingZerosBigInt(c);
 
   return c;
 }

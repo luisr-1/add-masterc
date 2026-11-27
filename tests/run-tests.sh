@@ -1,9 +1,9 @@
 #!/bin/bash
 
-BIN=./build/add-masterc                            # caminho do binário
+BIN=./build/add-masterc               # caminho do binário
 SCENARIOS=tests/scenarios.txt         # arquivo com entradas
 EXPECTED=tests/expected.txt           # arquivo de saídas esperadas
-OUT=resultados.txt                  # arquivo gerado pelo programa
+OUT=resultados.txt                    # arquivo gerado pelo programa
 GEN=tests/generate_expected.py        # gerador em Python
 
 echo "[ RUNNER ] Verificando arquivos..."
@@ -20,9 +20,15 @@ if [ ! -f "$GEN" ]; then
     exit 1
 fi
 
-# 3. gerar expected.txt se não existir
-if [ ! -f "$EXPECTED" ]; then
-    echo "[ RUNNER ] expected.txt não existe. Gerando agora..."
+# 3. verificar se o binário existe
+if [ ! -x "$BIN" ]; then
+    echo "✗ ERRO: binário $BIN não encontrado! Execute 'make' antes."
+    exit 1
+fi
+
+# 4. gerar expected.txt se não existir ou se scenarios.txt / gerador forem mais recentes
+if [ ! -f "$EXPECTED" ] || [ "$SCENARIOS" -nt "$EXPECTED" ] || [ "$GEN" -nt "$EXPECTED" ]; then
+    echo "[ RUNNER ] Gerando $EXPECTED atualizado..."
     python3 "$GEN"
 
     if [ $? -ne 0 ]; then
@@ -34,6 +40,7 @@ if [ ! -f "$EXPECTED" ]; then
 fi
 
 echo "[ RUNNER ] Executando programa..."
+"$BIN" "$SCENARIOS"
 
 if [ $? -ne 0 ]; then
     echo "✗ ERRO: problema ao executar o binário."

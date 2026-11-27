@@ -1,17 +1,7 @@
 #include "fat.h"
 #include "mult.h"
 
-#define RECURSION_THRESHOLD 15
-
-bigInt binarySplittingProduct(unsigned long long int l,
-                              unsigned long long int r) {
-  if (r - l < RECURSION_THRESHOLD) {
-    if (l > r)
-      return intToBigInt(1);
-    if (l == r)
-      return intToBigInt(l);
-  }
-
+bigInt binarySplittingProduct(unsigned int l, unsigned int r) {
   if (l > r)
     return intToBigInt(1);
   if (l == r)
@@ -20,13 +10,20 @@ bigInt binarySplittingProduct(unsigned long long int l,
   if (r - l == 1) {
     bigInt bl = intToBigInt(l);
     bigInt br = intToBigInt(r);
+    if (!bl || !br) {
+      if (bl)
+        bl->destroy(bl);
+      if (br)
+        br->destroy(br);
+      return NULL;
+    }
     bigInt result = multBigInt(bl, br);
     bl->destroy(bl);
     br->destroy(br);
     return result;
   }
 
-  unsigned long long int mid = l + (r - l) / 2;
+  unsigned int mid = l + (r - l) / 2;
 
   bigInt left_product = binarySplittingProduct(l, mid);
   bigInt right_product = binarySplittingProduct(mid + 1, r);

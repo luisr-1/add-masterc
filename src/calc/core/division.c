@@ -1,55 +1,84 @@
 #include "division.h"
 #include "../../types/big_integer.h"
 #include "subtract.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 bigDivResult divisionBigInt(bigInt a, bigInt b) {
-  if (*b->size == 1 && b->vector->vector[0] == 0) {
+  if (!a || !b || !a->vector || !b->vector)
     return NULL;
-  }
+
+  if (*b->size == 1 && b->vector->vector[0] == 0)
+    return NULL;
 
   bigDivResult res = (bigDivResult)calloc(1, sizeof(struct BigDivResult));
   if (!res) {
-    perror("Problema para realizar alocacao do resultado da divisao\n");
+    perror("Problema para realizar alocação do resultado da divisão");
     return NULL;
   }
 
-  bigInt quotient = initEmpty(*a->size);
-  bigInt remainder = initNumber("0");
-
-  bigInt b_abs = copyBigInt(b);
-  b_abs->signal = 1;
-  removeLeadingZerosBigInt(b_abs);
-  
-  for (int i = *a->size - 1; i >= 0; i--) {
-    int current_digit = a->vector->vector[i];
-    appendDigitInPlace(remainder, current_digit);
-    removeLeadingZerosBigInt(remainder);
-    
-    int count = 0;
-
-    while (compareAbs(remainder, b_abs) >= 0) {
-      bigInt diff = subtractBigInt(remainder, b_abs);
-
-      removeLeadingZerosBigInt(diff);
-      
-      destroyBigInt(remainder);
-      remainder = diff;
-
-      count++;
+  if (compareAbs(a, b) < 0) {
+    res->quotient = intToBigInt(0);
+    res->remainder = copyBigInt(a);
+    if (!res->quotient || !res->remainder) {
+      if (res->quotient)
+        res->quotient->destroy(res->quotient);
+      if (res->remainder)
+        res->remainder->destroy(res->remainder);
+      free(res);
+      return NULL;
     }
-
-    quotient->vector->vector[i] = count;
+    removeLeadingZerosBigInt(res->remainder);
+    return res;
   }
 
-  destroyBigInt(b_abs);
+  bigInt abs_b = copyBigInt(b);
+  bigInt quotient = intToBigInt(0);
+  bigInt current = intToBigInt(0);
+  if (!abs_b || !quotient || !current) {
+    if (abs_b)
+      abs_b->destroy(abs_b);
+    if (quotient)
+      quotient->destroy(quotient);
+    if (current)
+      current->destroy(current);
+    free(res);
+    return NULL;
+  }
+  abs_b->signal = 1;
+
+  for (size_t idx = *a->size; idx > 0; idx--) {
+    appendDigitInPlace(current, (int)a->vector->vector[idx - 1]);
+    removeLeadingZerosBigInt(current);
+
+    int digit = 0;
+    while (compareAbs(current, abs_b) >= 0) {
+      bigInt next = differenceBigInt(current, abs_b);
+      if (!next) {
+        abs_b->destroy(abs_b);
+        quotient->destroy(quotient);
+        current->destroy(current);
+        free(res);
+        return NULL;
+      }
+      current->destroy(current);
+      current = next;
+      digit++;
+    }
+
+    appendDigitInPlace(quotient, digit);
+  }
+
+  abs_b->destroy(abs_b);
 
   quotient->signal = (a->signal == b->signal) ? 1 : -1;
-  remainder->signal = a->signal;
-
   removeLeadingZerosBigInt(quotient);
-  removeLeadingZerosBigInt(remainder);
+
+  current->signal = a->signal;
+  removeLeadingZerosBigInt(current);
+
   res->quotient = quotient;
-  res->remainder = remainder;
+  res->remainder = current;
+
   return res;
 }

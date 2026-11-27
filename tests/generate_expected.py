@@ -23,10 +23,11 @@ def calculate(op, a, b=None):
         return str(A * B)
 
     if op == "/":
-        # divisão inteira truncada como no C
+        # divisão inteira truncada em direção a zero como no C
         if B == 0:
             return "undefined"
-        return str(A // B)
+        q = abs(A) // abs(B)
+        return str(-q if ((A < 0) ^ (B < 0)) and q != 0 else q)
 
     if op == "%":
         # seu C: módulo só permitido se ambos são >= 0

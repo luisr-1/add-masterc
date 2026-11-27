@@ -5,19 +5,23 @@
 #include <string.h>
 
 array initArray(size_t size) {
-  array vector = (array)calloc(size, sizeof(struct Array));
+  size_t initial_capacity = (size > 0) ? size : 1;
+
+  array vector = (array)calloc(1, sizeof(struct Array));
   if (!vector) {
-    perror("Problema para a estrutura Array\n");
+    perror("Problema para alocar a estrutura Array");
     return NULL;
   }
 
-  vector->vector = (unsigned int *)calloc(size, sizeof(unsigned int));
+  vector->vector =
+      (unsigned int *)calloc(initial_capacity, sizeof(unsigned int));
   if (vector->vector == NULL) {
-    perror("Problema para alocar o vetor\n");
+    perror("Problema para alocar o vetor");
+    free(vector);
     return NULL;
   }
 
-  vector->capacity = size;
+  vector->capacity = initial_capacity;
   vector->size = 0;
   vector->add = addElement;
   vector->remove = removeElement;
@@ -30,58 +34,81 @@ array initArray(size_t size) {
 
 void addElement(array self, unsigned int element) {
   if (!self) {
-    perror("O array é nulo\n");
+    fprintf(stderr, "O array é nulo\n");
     return;
   }
 
   if (self->capacity <= self->size) {
-    self->capacity *= 2;
-    self->vector = (unsigned int *)realloc(self->vector, sizeof(unsigned int) *
-                                                             self->capacity);
+    size_t new_capacity = (self->capacity > 0) ? self->capacity * 2 : 1;
+    unsigned int *new_vector = (unsigned int *)realloc(
+        self->vector, sizeof(unsigned int) * new_capacity);
+    if (!new_vector) {
+      perror("Erro ao realocar o vetor");
+      return;
+    }
+    self->vector = new_vector;
+    self->capacity = new_capacity;
   }
 
   self->vector[self->size++] = element;
 }
 
 void destroyArray(array self) {
+  if (!self)
+    return;
+
   free(self->vector);
   free(self);
 }
 
 void removeElement(array self, size_t index) {
   if (isEmpty(self)) {
-    perror("Não existem elementos para remover no array\n");
+    fprintf(stderr, "Não existem elementos para remover no array\n");
     return;
   }
 
-  if (index > self->size) {
-    perror("Indice passado está fora da capacidade do array\n");
+  if (index >= self->size) {
+    fprintf(stderr, "Índice passado está fora dos limites do array\n");
     return;
   }
 
-  self->vector[self->size--] = 0;
-  if (self->size < (self->capacity / 2)) {
-    self->capacity /= 2;
-    self->vector = realloc(self->vector, sizeof(unsigned int) * self->capacity);
+  if (index < self->size - 1) {
+    memmove(&self->vector[index], &self->vector[index + 1],
+            (self->size - index - 1) * sizeof(unsigned int));
+  }
+
+  self->size--;
+  self->vector[self->size] = 0;
+
+  if (self->capacity > 1 && self->size < (self->capacity / 2)) {
+    size_t new_capacity = self->capacity / 2;
+    unsigned int *new_vector =
+        realloc(self->vector, sizeof(unsigned int) * new_capacity);
+    if (new_vector) {
+      self->vector = new_vector;
+      self->capacity = new_capacity;
+    }
   }
 }
 
 bool isEmpty(array self) {
   if (!self)
     return true;
-  else if (self->size == 0)
-    return true;
-  else
-    return false;
+  return self->size == 0;
 }
 
 void addFront(array self, unsigned int element) {
-  if (self->size == self->capacity) {
+  if (!self) {
+    fprintf(stderr, "O array é nulo\n");
+    return;
+  }
+
+  if (self->size >= self->capacity) {
     size_t new_capacity = self->capacity * 2 + 1;
     unsigned int *new_vector =
         realloc(self->vector, new_capacity * sizeof(unsigned int));
     if (!new_vector) {
-      perror("Erro ao alocar o vetor\n");
+      perror("Erro ao alocar o vetor");
       return;
     }
     self->vector = new_vector;

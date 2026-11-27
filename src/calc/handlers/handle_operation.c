@@ -2,10 +2,11 @@
 #include "../../types/operators.h"
 #include "../core/add.h"
 #include "../core/division.h"
+#include "../core/mod.h"
 #include "../core/mult.h"
 #include "../core/subtract.h"
-#include "../core/mod.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 bool isValidOperation(const char operation) {
   return operation == add_operator || operation == sub_operator ||
@@ -14,7 +15,7 @@ bool isValidOperation(const char operation) {
 }
 
 bigInt getResult(const char op, bigInt a, bigInt b) {
-  if (!isValidOperation(op))
+  if (!isValidOperation(op) || !a || !b)
     return NULL;
   switch (op) {
   case add_operator:
@@ -37,9 +38,10 @@ bigInt getResult(const char op, bigInt a, bigInt b) {
     return quotient;
   }
   case mod_operator: {
-    if(a->signal == -1 || b->signal == -1) {
-        printf("Pela definição dada, a operação módulo só é permitida para números positivos\n");
-        return NULL;
+    if (a->signal == -1 || b->signal == -1) {
+      printf("Pela definição dada, a operação módulo só é permitida para "
+             "números positivos\n");
+      return NULL;
     }
     return modBigInt(a, b);
   }
