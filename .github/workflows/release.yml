@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da versão a ser lançada (ex: v1.2.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, Validar e Publicar Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Definir versão da Release
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG="$GITHUB_REF_NAME"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Instalar dependências
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential valgrind python3
+
+      - name: Validar testes e Valgrind (build debug)
+        run: |
+          chmod +x tests/run-tests.sh
+          make clean && make test
+          valgrind --leak-check=full \
+            --show-leak-kinds=all \
+            --track-origins=yes \
+            --errors-for-leak-kinds=all \
+            --error-exitcode=1 \
+            ./build/add-masterc tests/scenarios.txt
+
+      - name: Compilar e testar binário otimizado de Release
+        run: |
+          make clean
+          make build CFLAGS="-Wall -Wextra -Werror -std=c11 -O2 -MMD -MP"
+          ./tests/run-tests.sh
+
+      - name: Empacotar artefatos da Release
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          mkdir -p dist staging
+          cp build/add-masterc dist/add-masterc-linux-x86_64
+          chmod +x dist/add-masterc-linux-x86_64
+
+          cp build/add-masterc staging/add-masterc
+          [ -f README.md ] && cp README.md staging/
+          [ -f LICENSE ] && cp LICENSE staging/
+
+          tar -czf "dist/add-masterc-${TAG}-linux-x86_64.tar.gz" -C staging .
+          rm -rf staging
+
+          (cd dist && sha256sum * > sha256sums.txt)
+
+      - name: Publicar GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            dist/add-masterc-linux-x86_64
+            dist/add-masterc-${{ steps.version.outputs.tag }}-linux-x86_64.tar.gz
+            dist/sha256sums.txt

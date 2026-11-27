@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-and-test:
+    name: Build, Testes e Valgrind
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalar dependências
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential valgrind python3
+
+      - name: Compilar projeto
+        run: make clean && make build
+
+      - name: Executar suíte de testes
+        run: |
+          chmod +x tests/run-tests.sh
+          make test
+
+      - name: Verificar memória com Valgrind
+        run: |
+          valgrind --leak-check=full \
+            --show-leak-kinds=all \
+            --track-origins=yes \
+            --errors-for-leak-kinds=all \
+            --error-exitcode=1 \
+            ./build/add-masterc tests/scenarios.txt
